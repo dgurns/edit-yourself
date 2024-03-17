@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+h1 {
+	@apply text-4xl font-bold;
+}
+
+form {
+	@apply flex w-full flex-col items-start gap-4;
+}
+
+textarea {
+	@apply flex w-full rounded-lg border-2 border-gray-300 p-2;
+}
+
+button,
+button[type='submit'] {
+	@apply rounded-lg bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700;
+}
