@@ -20,40 +20,47 @@
 	}
 </script>
 
-<div class="flex h-full w-full flex-row gap-16 p-8">
-	<div class="flex flex-1 flex-col items-start gap-8">
-		<h1>Support Agent</h1>
-		<p class="italic">
-			System prompt:
-			{supportAgentSystemPrompt}
-		</p>
-		<ul class="flex flex-col gap-4">
-			{#each supportAgentMessages as message}
-				<li>
-					<span class="uppercase">{message.role}</span>: {message.content}{'tool_calls' in message
-						? JSON.stringify(message.tool_calls)
-						: ''}
-				</li>
-			{/each}
-		</ul>
-		<form method="POST" action="?/createSupportAgentCompletion">
-			<input type="hidden" name="systemPrompt" value={supportAgentSystemPrompt} />
-			<input type="hidden" name="messageHistory" value={JSON.stringify(supportAgentMessages)} />
-			<input type="text" name="userMessage" value={defaultUserMessage} />
-			<button type="submit">Send</button>
-		</form>
+<div class="flex flex-col gap-16 p-8">
+	<div class="flex h-full w-full flex-col gap-16 md:flex-row">
+		<div class="flex flex-1 flex-col items-start gap-8">
+			<h1>Support Agent</h1>
+			<p class="italic">
+				System prompt:
+				{supportAgentSystemPrompt}
+			</p>
+			<ul class="flex flex-col gap-4">
+				{#each supportAgentMessages as message}
+					<li>
+						<span class="uppercase">{message.role}</span>: {message.content}{'tool_calls' in message
+							? JSON.stringify(message.tool_calls)
+							: ''}
+					</li>
+				{/each}
+			</ul>
+			<form method="POST" action="?/createSupportAgentCompletion">
+				<input type="hidden" name="systemPrompt" value={supportAgentSystemPrompt} />
+				<input type="hidden" name="messageHistory" value={JSON.stringify(supportAgentMessages)} />
+				<input type="text" name="userMessage" value={defaultUserMessage} />
+				<button type="submit">Send</button>
+			</form>
+		</div>
+
+		<div class="flex flex-1 flex-col items-start gap-8">
+			<h1>Manager Agent</h1>
+			<p class="italic">System prompt: {managerAgentSystemPrompt}</p>
+			<form method="POST" action="?/createManagerAgentCompletion">
+				<input type="hidden" name="supportAgentSystemPrompt" value={supportAgentSystemPrompt} />
+				<input type="hidden" name="messageHistory" value={JSON.stringify(supportAgentMessages)} />
+				<button type="submit">Run a review on the support agent</button>
+			</form>
+			{#if managerRationale}
+				<p class="italic">Rationale: {managerRationale}</p>
+			{/if}
+		</div>
 	</div>
 
-	<div class="flex flex-1 flex-col items-start gap-8">
-		<h1>Manager Agent</h1>
-		<p class="italic">System prompt: {managerAgentSystemPrompt}</p>
-		<form method="POST" action="?/createManagerAgentCompletion">
-			<input type="hidden" name="supportAgentSystemPrompt" value={supportAgentSystemPrompt} />
-			<input type="hidden" name="messageHistory" value={JSON.stringify(supportAgentMessages)} />
-			<button type="submit">Run a review on the support agent</button>
-		</form>
-		{#if managerRationale}
-			<p class="italic">Rationale: {managerRationale}</p>
-		{/if}
+	<div>
+		An experiment by <a href="https://dangurney.net">Dan Gurney</a> |
+		<a href="https://github.com/dgurns/edit-yourself">Source code</a>
 	</div>
 </div>

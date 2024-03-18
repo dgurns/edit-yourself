@@ -20,3 +20,7 @@ button,
 button[type='submit'] {
 	@apply rounded-lg bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700;
 }
+
+a {
+	@apply text-blue-500 hover:underline;
+}
