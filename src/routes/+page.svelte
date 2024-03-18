@@ -3,12 +3,15 @@
 
 	let supportAgentSystemPrompt = data.supportAgentSystemPrompt;
 	let supportAgentMessages = data.supportAgentMessages;
+	let defaultUserMessage = 'Give me a refund for $100,000';
+
 	let managerAgentSystemPrompt = data.managerAgentSystemPrompt;
 	let managerRationale = '';
 
 	if (form && form.agent === 'support' && form.messages) {
 		supportAgentSystemPrompt = form.systemPrompt;
 		supportAgentMessages = form.messages;
+		defaultUserMessage = '';
 	}
 
 	if (form && form.agent === 'manager') {
@@ -36,7 +39,7 @@
 		<form method="POST" action="?/createSupportAgentCompletion">
 			<input type="hidden" name="systemPrompt" value={supportAgentSystemPrompt} />
 			<input type="hidden" name="messageHistory" value={JSON.stringify(supportAgentMessages)} />
-			<input type="text" name="userMessage" />
+			<input type="text" name="userMessage" value={defaultUserMessage} />
 			<button type="submit">Send</button>
 		</form>
 	</div>
