@@ -1,7 +1,11 @@
 import type { Actions } from './$types';
 import { OPENAI_API_KEY } from '$env/static/private';
 import OpenAI from 'openai';
-import { TOOL_GRANT_REFUND, TOOL_UPDATE_SUPPORT_AGENT_SYSTEM_PROMPT } from '$lib';
+import {
+	TOOL_DECLINE_REFUND,
+	TOOL_GRANT_REFUND,
+	TOOL_UPDATE_SUPPORT_AGENT_SYSTEM_PROMPT
+} from '$lib';
 import type {
 	ChatCompletionMessage,
 	ChatCompletionMessageParam,
@@ -47,7 +51,7 @@ export const actions = {
 
 		const completion = await openai.chat.completions.create({
 			messages: [{ role: 'system', content: systemPrompt }, ...initialMessages],
-			tools: [TOOL_GRANT_REFUND],
+			tools: [TOOL_GRANT_REFUND, TOOL_DECLINE_REFUND],
 			model: 'gpt-3.5-turbo',
 			stream: false
 		});
@@ -58,7 +62,10 @@ export const actions = {
 			const toolCallResult: ChatCompletionToolMessageParam = {
 				role: 'tool',
 				tool_call_id: toolCall.id,
-				content: 'Refund granted successfully'
+				content:
+					toolCall.function.name === 'grant_refund'
+						? 'Refund granted successfully'
+						: 'Refund declined'
 			};
 			const postRefundCompletion = await openai.chat.completions.create({
 				messages: [

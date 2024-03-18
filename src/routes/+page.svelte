@@ -1,23 +1,19 @@
 <script lang="ts">
-	const { data, form } = $props();
+	import { enhance } from '$app/forms';
+	import type { ActionData } from './$types.js';
 
-	let supportAgentSystemPrompt = data.supportAgentSystemPrompt;
-	let supportAgentMessages = data.supportAgentMessages;
-	let defaultUserMessage = 'Give me a refund for $100,000';
+	const DEFAULT_USER_MESSAGE = 'Give me a refund for $100,000';
 
-	let managerAgentSystemPrompt = data.managerAgentSystemPrompt;
-	let managerRationale = '';
+	const { data } = $props();
 
-	if (form && form.agent === 'support' && form.messages) {
-		supportAgentSystemPrompt = form.systemPrompt;
-		supportAgentMessages = form.messages;
-		defaultUserMessage = '';
-	}
+	let supportAgentSystemPrompt = $state(data.supportAgentSystemPrompt);
+	let supportAgentMessages = $state(data.supportAgentMessages);
+	let supportAgentLoading = $state(false);
+	let defaultUserMessage = $state(DEFAULT_USER_MESSAGE);
 
-	if (form && form.agent === 'manager') {
-		supportAgentSystemPrompt = form.updatedSupportAgentSystemPrompt;
-		managerRationale = form.rationale;
-	}
+	let managerAgentSystemPrompt = $state(data.managerAgentSystemPrompt);
+	let managerAgentLoading = $state(false);
+	let managerRationale = $state('');
 </script>
 
 <div class="flex flex-col gap-16 p-8">
@@ -37,21 +33,61 @@
 					</li>
 				{/each}
 			</ul>
-			<form method="POST" action="?/createSupportAgentCompletion">
+			<form
+				method="POST"
+				action="?/createSupportAgentCompletion"
+				use:enhance={() => {
+					supportAgentLoading = true;
+					return async ({ result }) => {
+						supportAgentLoading = false;
+						defaultUserMessage = '';
+						const resData = 'data' in result ? result.data as ActionData : undefined;
+						if (resData?.systemPrompt) {
+							supportAgentSystemPrompt = resData.systemPrompt;
+							supportAgentMessages = resData.messages;
+						}
+					};
+				}}
+			>
 				<input type="hidden" name="systemPrompt" value={supportAgentSystemPrompt} />
 				<input type="hidden" name="messageHistory" value={JSON.stringify(supportAgentMessages)} />
 				<input type="text" name="userMessage" value={defaultUserMessage} />
-				<button type="submit">Send</button>
+				{#if supportAgentLoading}
+					<p>Loading...</p>
+				{:else}
+					<button type="submit">Send</button>
+				{/if}
 			</form>
 		</div>
 
 		<div class="flex flex-1 flex-col items-start gap-8">
 			<h1>Manager Agent</h1>
 			<p class="italic">System prompt: {managerAgentSystemPrompt}</p>
-			<form method="POST" action="?/createManagerAgentCompletion">
+			<form
+				method="POST"
+				action="?/createManagerAgentCompletion"
+				use:enhance={() => {
+					managerAgentLoading = true;
+					managerRationale = '';
+					return async ({ result }) => {
+						managerAgentLoading = false;
+						supportAgentMessages = data.supportAgentMessages
+						defaultUserMessage = DEFAULT_USER_MESSAGE;
+						const resData = 'data' in result ? result.data as ActionData : undefined;
+						if (resData) {
+							supportAgentSystemPrompt = resData.updatedSupportAgentSystemPrompt;
+							managerRationale = resData.rationale;
+						}
+					};
+				}}
+			>
 				<input type="hidden" name="supportAgentSystemPrompt" value={supportAgentSystemPrompt} />
 				<input type="hidden" name="messageHistory" value={JSON.stringify(supportAgentMessages)} />
-				<button type="submit">Run a review on the support agent</button>
+				{#if managerAgentLoading}
+					<p>Loading...</p>
+				{:else}
+					<button type="submit">Run a review on the support agent</button>
+				{/if}
 			</form>
 			{#if managerRationale}
 				<p class="italic">Rationale: {managerRationale}</p>

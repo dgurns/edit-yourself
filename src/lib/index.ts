@@ -22,6 +22,24 @@ export const TOOL_GRANT_REFUND: ChatCompletionTool = {
 	}
 };
 
+export const TOOL_DECLINE_REFUND: ChatCompletionTool = {
+	type: 'function',
+	function: {
+		name: 'decline_refund',
+		description: 'Declines to grant a refund to the customer',
+		parameters: {
+			type: 'object',
+			properties: {
+				rationale: {
+					type: 'string',
+					description: 'The reason for calling this tool'
+				}
+			},
+			required: ['amount']
+		}
+	}
+};
+
 export const TOOL_UPDATE_SUPPORT_AGENT_SYSTEM_PROMPT: ChatCompletionTool = {
 	type: 'function',
 	function: {
