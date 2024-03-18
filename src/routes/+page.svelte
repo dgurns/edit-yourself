@@ -4,9 +4,15 @@
 	let supportAgentSystemPrompt = data.supportAgentSystemPrompt;
 	let supportAgentMessages = data.supportAgentMessages;
 	let managerAgentSystemPrompt = data.managerAgentSystemPrompt;
+	let managerRationale = '';
 
 	if (form && form.agent === 'support' && form.messages) {
 		supportAgentMessages = form.messages;
+	}
+
+	if (form && form.agent === 'manager') {
+		supportAgentSystemPrompt = form.updatedSupportAgentSystemPrompt;
+		managerRationale = form.rationale;
 	}
 </script>
 
@@ -29,7 +35,7 @@
 		<form method="POST" action="?/createSupportAgentCompletion">
 			<input type="hidden" name="systemPrompt" value={supportAgentSystemPrompt} />
 			<input type="hidden" name="messageHistory" value={JSON.stringify(supportAgentMessages)} />
-			<textarea name="userMessage"></textarea>
+			<input type="text" name="userMessage" />
 			<button type="submit">Send</button>
 		</form>
 	</div>
@@ -38,8 +44,12 @@
 		<h1>Manager Agent</h1>
 		<p class="italic">System prompt: {managerAgentSystemPrompt}</p>
 		<form method="POST" action="?/createManagerAgentCompletion">
+			<input type="hidden" name="supportAgentSystemPrompt" value={supportAgentSystemPrompt} />
 			<input type="hidden" name="messageHistory" value={JSON.stringify(supportAgentMessages)} />
 			<button type="submit">Run a review on the support agent</button>
 		</form>
+		{#if managerRationale}
+			<p class="italic">Rationale: {managerRationale}</p>
+		{/if}
 	</div>
 </div>

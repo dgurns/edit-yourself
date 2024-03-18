@@ -32,7 +32,8 @@ export const TOOL_UPDATE_SUPPORT_AGENT_SYSTEM_PROMPT: ChatCompletionTool = {
 			properties: {
 				rationale: {
 					type: 'string',
-					description: 'The reason for calling this tool'
+					description:
+						"Explain your analysis of the support agent's behavior, the change you're making, and why you're making it."
 				},
 				updatedSystemPrompt: {
 					type: 'string',

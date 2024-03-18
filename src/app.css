@@ -10,7 +10,9 @@ form {
 	@apply flex w-full flex-col items-start gap-4;
 }
 
-textarea {
+textarea,
+input,
+input[type='text'] {
 	@apply flex w-full rounded-lg border-2 border-gray-300 p-2;
 }
 

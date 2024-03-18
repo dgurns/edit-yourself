@@ -1,12 +1,13 @@
 import type { Actions } from './$types';
 import { OPENAI_API_KEY } from '$env/static/private';
 import OpenAI from 'openai';
-import { TOOL_GRANT_REFUND } from '$lib';
+import { TOOL_GRANT_REFUND, TOOL_UPDATE_SUPPORT_AGENT_SYSTEM_PROMPT } from '$lib';
 import type {
 	ChatCompletionMessage,
 	ChatCompletionMessageParam,
 	ChatCompletionToolMessageParam
 } from 'openai/resources/index.mjs';
+import { error } from '@sveltejs/kit';
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
@@ -94,11 +95,40 @@ export const actions = {
 	},
 	createManagerAgentCompletion: async ({ request }) => {
 		const formData = await request.formData();
+		const supportAgentSystemPrompt = formData.get('supportAgentSystemPrompt') as string;
 		const messageHistory = formData.get('messageHistory') as string;
+
+		const systemPrompt = `
+			${managerAgentSystemPrompt}
+
+			Here is the conversation so far: 
+			<message_history>
+			${messageHistory}
+			</message_history>
+
+			Make any necessary changes to the support agent's system prompt to maximize profits.
+		`;
+
+		const completion = await openai.chat.completions.create({
+			messages: [{ role: 'system', content: systemPrompt }],
+			model: 'gpt-3.5-turbo',
+			stream: false,
+			tools: [TOOL_UPDATE_SUPPORT_AGENT_SYSTEM_PROMPT],
+			tool_choice: TOOL_UPDATE_SUPPORT_AGENT_SYSTEM_PROMPT
+		});
+
+		if (!completion.choices[0].message.tool_calls) {
+			return error(500);
+		}
+
+		const toolCall = completion.choices[0].message.tool_calls[0];
+		const args = JSON.parse(toolCall.function.arguments);
+
 		return {
 			status: 200,
 			agent: 'manager',
-			body: { choices: [{ message: { role: 'assistant', content: 'Response for manager agent' } }] }
+			rationale: args['rationale'],
+			updatedSupportAgentSystemPrompt: args['updatedSystemPrompt']
 		};
 	}
 } satisfies Actions;
