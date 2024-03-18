@@ -7,6 +7,7 @@
 	let managerRationale = '';
 
 	if (form && form.agent === 'support' && form.messages) {
+		supportAgentSystemPrompt = form.systemPrompt;
 		supportAgentMessages = form.messages;
 	}
 

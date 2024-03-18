@@ -79,6 +79,7 @@ export const actions = {
 			return {
 				status: 200,
 				agent: 'support',
+				systemPrompt,
 				messages
 			};
 		}
@@ -90,6 +91,7 @@ export const actions = {
 		return {
 			status: 200,
 			agent: 'support',
+			systemPrompt,
 			messages
 		};
 	},
@@ -100,6 +102,11 @@ export const actions = {
 
 		const systemPrompt = `
 			${managerAgentSystemPrompt}
+
+			Here is the existing support agent system prompt:
+			<existing_support_agent_system_prompt>
+			${supportAgentSystemPrompt}
+			</existing_support_agent_system_prompt>
 
 			Here is the conversation so far: 
 			<message_history>
