@@ -1,10 +1,13 @@
 <script lang="ts">
 	const { data, form } = $props();
 
-	// TODO: override these with form data when it arrives
-	const supportAgentSystemPrompt = data.supportAgentSystemPrompt;
-	const supportAgentMessages = data.supportAgentMessages;
-	const managerAgentSystemPrompt = data.managerAgentSystemPrompt;
+	let supportAgentSystemPrompt = data.supportAgentSystemPrompt;
+	let supportAgentMessages = data.supportAgentMessages;
+	let managerAgentSystemPrompt = data.managerAgentSystemPrompt;
+
+	if (form && form.agent === 'support' && form.messages) {
+		supportAgentMessages = form.messages;
+	}
 </script>
 
 <div class="flex h-full w-full flex-row gap-16 p-8">
@@ -16,7 +19,11 @@
 		</p>
 		<ul class="flex flex-col gap-4">
 			{#each supportAgentMessages as message}
-				<li><span class="uppercase">{message.role}</span>: {message.content}</li>
+				<li>
+					<span class="uppercase">{message.role}</span>: {message.content}{'tool_calls' in message
+						? JSON.stringify(message.tool_calls)
+						: ''}
+				</li>
 			{/each}
 		</ul>
 		<form method="POST" action="?/createSupportAgentCompletion">
